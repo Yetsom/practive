@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+        }
+        .plane {
+            width: 66px;
+            height: 80px;
+            background: url('img/myplan.gif');
+            position: absolute;
+        }
+        .bullet {
+            width: 6px;
+            height: 14px;
+            background: url('img/bullet.png');
+            position:absolute;
+        }
+        .midPlane {
+            width: 46px;
+            height: 64px;
+            background: url('img/中飞机挨打.png');
+            position: absolute;
+        }
+        .cover {
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            text-align: center;
+            font-size: 50px;
+            padding-top: 200px;
+            color: white;
+        }
+    </style>
+</head>
+<body id="bo">
+    <script>
+        window.onload = function(){
+        var plane = document.createElement('div')
+        plane.className = 'plane'
+        document.body.appendChild(plane)
+        var score  = 0     //  
+ 
+        var x = 0;
+        var y = 0;
+        window.onmousemove = function(e){
+            var e = e || window.event;
+            x = e.clientX;
+            y = e.clientY;
+            plane.style.left = x - 33 + 'px'
+            plane.style.top = y - 40 + 'px'
+        }
+        var bulletNum = 0
+        var allTimer = setInterval(function(){
+            var bullet = document.createElement('div')
+            bullet.className = 'bullet'
+            document.body.appendChild(bullet)
+
+            bullet.style.left = x - 3 + 'px'
+            bullet.style.top = y - 54 + 'px'
+
+            bullet.timer = setInterval(function(){
+                    bullet.style.top = bullet.offsetTop - 10 + 'px'
+                if(bullet.offsetTop <= 0){
+                    clearInterval(bullet.timer)
+                    document.body.removeChild(bullet)
+                }
+                // else{
+                // }
+               
+            },20)
+
+            bulletNum ++
+            
+            var allBullet = document.getElementsByClassName('bullet')
+            if(bulletNum % 10 ==0 ){
+                var midPlane = document.createElement('div')
+                midPlane.className = 'midPlane'
+                document.body.appendChild(midPlane)
+                var num = parseInt(Math.random()*(window.innerWidth - 46))
+                midPlane.style.left = num + 'px'
+                midPlane.style.top = '0px'
+
+
+                midPlane.timer = setInterval(function(){
+                var flag = false;
+
+                    if(impact(midPlane,plane)){
+                        flag = true;
+                        clearInterval(allTimer)
+
+                        
+
+                        midPlane.style.background = 'url("img/本方飞机爆炸.gif")'
+                        setTimeout(function(){
+                                document.body.removeChild(plane)
+                        },500)
+
+                        var cover = document.createElement('div')
+                        cover.className = 'cover'
+                        document.body.appendChild(cover)
+
+                        cover.innerHTML = 'GAME OVER <br> YOUR SCORE IS '+ score
+
+                    }
+
+
+                    for(var i =0;i<allBullet.length;i++){
+                        if(impact(allBullet[i],midPlane)){
+                            clearInterval(allBullet[i].timer)
+                            document.body.removeChild(allBullet[i])
+                            flag = true;
+                            break;
+                        }
+                    }
+
+                   if(midPlane.offsetTop > window.innerHeight - 64){
+                       clearInterval(midPlane.timer)
+                       document.body.removeChild(midPlane)
+                   }else if (flag){
+                        clearInterval(midPlane.timer)
+                        
+                       score ++
+                        midPlane.style.background = 'url("img/中飞机爆炸.gif")'
+                        setTimeout(function(){
+                                document.body.removeChild(midPlane)
+                        },500)
+                        flag = false
+                   }else{
+                        midPlane.style.top = midPlane.offsetTop + 10 + 'px'
+                   }
+                },20)
+
+            }
+
+
+        },50)
+
+        function getStyle (ele,attr){
+            if(ele.currentStyle){
+                return parseInt(ele.currentStyle[attr])
+            }else {
+                return parseInt(getComputedStyle(ele,null)[attr])
+            }
+        }
+
+        function impact (obj1,obj2){
+            var a = {
+                x:getStyle(obj1,'left'),
+                y:getStyle(obj1,'top'),
+                w:getStyle(obj1,'width'),
+                h:getStyle(obj1,'height')
+            }
+            var b = {
+                x:getStyle(obj2,'left'),
+                y:getStyle(obj2,'top'),
+                w:getStyle(obj2,'width'),
+                h:getStyle(obj2,'height')
+            }
+            
+            if(a.x >= b.x - a.w && a.x <= b.x + b.w && a.y >= b.y - a.h && a.y <= b.y + b.h){
+                return true
+            }
+
+        }
+    
+        }
+    
+    </script>
+</body>
+</html>
